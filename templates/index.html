@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
+	<title>Register</title>
+</head>
+<body>
+	<section id="register">
+		<h1>Register for a new Account</h1>
+		{% with messages = get_flashed_messages() %}
+		    {% if messages %}
+		    <div id="errors">
+		      <h3>Errors Found in Submission!</h3>
+		      <ul>
+		      {% for message in messages %}
+		        <li>{{message}}</li>
+		      {% endfor %}
+		      </ul>
+		     </div>
+		    {% endif %}
+	  	{% endwith %}
+		<form action='/process' method="POST">
+			
+			<label for="first_name">First Name:</label><input type="text" name='first_name' class="response" >
+			<label for="last_name">Last Name:</label><input type="text" name='last_name' class="response" >
+
+			<label for="email">Email Address:</label><input type="text" name='email' class="response" >
+
+			<label for="password1">Choose a Password:</label><input type="password" name='password1' class="response" >
+			<label for="password2">Confirm Password:</label><input type="password" name='password2' class="response" >
+			
+
+			<input type="submit" value="Create my Account">
+		</form>
+	</section>
+</body>
+</html>
