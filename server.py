@@ -1,5 +1,6 @@
 from flask import Flask, redirect, render_template, request, session, flash
 import re
+from datetime import datetime as dt
 
 secret_key = open('secret-key.txt', 'r').read().strip()
 app = Flask(__name__)
@@ -24,7 +25,7 @@ def valid_password(pw):
 	return all(valid)
 
 EMAIL_REGEX = re.compile(r'^[a-zA-Z0-9\.\+_-]+@[a-zA-Z0-9\._-]+\.[a-zA-Z]*$')
-
+BDAY_REGEX =re.compile('\d\d\d\d-\d\d-\d\d')
 
 @app.route('/process', methods=['POST'])
 def process():
@@ -38,6 +39,7 @@ def process():
 	first_name = request.form['first_name']
 	last_name = request.form['last_name']
 	email = request.form['email']
+	birthday = request.form['birthday']
 	password1 = request.form['password1']
 	password2 = request.form['password2']
 
@@ -45,6 +47,7 @@ def process():
 		'first_name': 'First name',
 		'last_name': 'Last name',
 		'email': 'Email address',
+		'birthday': 'Birthday',
 		'password1': 'Password',
 		'password2': 'Password confirmation'
 	}
@@ -52,7 +55,7 @@ def process():
 	blank = []
 	for field, name in field_names.items():
 		if len(request.form[field]) == 0:
-			flash(name+' field is required.')
+			flash(name+' field is required')
 			blank.append(field)
 
 	#if len(blank) > 0:
@@ -71,6 +74,22 @@ def process():
 	if 'email' not in blank and not EMAIL_REGEX.match(email):
 		flash('Email address is not valid')
 		errors += 1
+
+	if 'birthday' not in blank:
+		if not BDAY_REGEX.match(birthday):
+			errors += 1
+			flash('Birthday should be formatted as YYYY-mm-dd')
+		else:
+			try:
+				bday = dt.strptime(birthday, '%Y-%m-%d').date()
+				if bday > dt.now().date():
+					errors += 1
+					flash('Birthday must be in the past')
+			except Exception as err:
+				errors += 1
+				flash('Invalid date entered for birthday')
+
+
 
 	if 'password1' not in blank and not valid_password(password1):
 		flash('Password must be more than 8 characters, contain at least 1 number and at least 1 uppercase letter.')
